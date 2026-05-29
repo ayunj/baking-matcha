@@ -19,7 +19,7 @@ export function DashboardPage({ onOpenRecipe, onAddRecipe }: DashboardPageProps)
   return (
     <>
       <div className={styles.pgTitle}>
-        {user ? `${user.name}의 ` : ""}
+        {user ? `${user.name}님의 ` : ""}
         {sectionConfig.title}
       </div>
       <div className={styles.pgSub}>{sectionConfig.desc}</div>

@@ -45,7 +45,7 @@
 }
 
 .authLogo h1 {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 20px;
   color: #1a2816;
   font-weight: 600;
@@ -266,7 +266,7 @@
 }
 
 .homeTop h2 {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 24px;
   color: #1a2816;
   font-weight: 600;
@@ -470,7 +470,7 @@
 }
 
 .pgTitle {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 22px;
   color: #1a2816;
   font-weight: 600;
@@ -615,7 +615,7 @@
 }
 
 .sv {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 26px;
   color: #1a2816;
   line-height: 1;
@@ -995,7 +995,7 @@
 }
 
 .mhd h2 {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 22px;
   color: #1a2816;
   font-weight: 600;
@@ -1490,7 +1490,7 @@
 }
 
 .detailTitle {
-  font-family: var(--font-lora), "Lora", serif;
+  font-family: var(--font-noto), "Noto Sans KR", sans-serif;
   font-size: 22px;
   color: #1a2816;
   font-weight: 600;

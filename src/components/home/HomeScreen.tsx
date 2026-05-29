@@ -16,7 +16,7 @@ export function HomeScreen() {
         <div className={styles.homeTop}>
           <div>
             <h2>
-              {user ? `${user.name}의 레시피 노트` : "나의 레시피 노트"}
+              {user ? `${user.name}님의 레시피 노트` : "나의 레시피 노트"}
             </h2>
             <p>오늘도 맛있게 구워봐요 🍵</p>
           </div>

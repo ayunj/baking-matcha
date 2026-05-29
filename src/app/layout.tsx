@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Lora, Noto_Sans_KR } from "next/font/google";
+import { Noto_Sans_KR } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import { SupabaseProvider } from "@/context/SupabaseContext";
 import "./globals.css";
@@ -8,13 +8,6 @@ const noto = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
   variable: "--font-noto",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-lora",
 });
 
 export const metadata: Metadata = {
@@ -34,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={`${noto.variable} ${lora.variable}`}>
+    <html lang="ko" className={noto.variable}>
       <body
         style={{
           fontFamily: "var(--font-noto), 'Noto Sans KR', sans-serif",
