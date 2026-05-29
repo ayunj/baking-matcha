@@ -8,7 +8,7 @@ import styles from "@/styles/app.module.css";
 
 type PantryFormModalProps = {
   open: boolean;
-  editId: number | null;
+  editId: string | null;
   onClose: () => void;
 };
 
@@ -20,6 +20,7 @@ export function PantryFormModal({ open, editId, onClose }: PantryFormModalProps)
   const [qty, setQty] = useState("");
   const [cat, setCat] = useState<string>(PANTRY_CATEGORIES[0]);
   const [low, setLow] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -36,14 +37,21 @@ export function PantryFormModal({ open, editId, onClose }: PantryFormModalProps)
     }
   }, [open, editing]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
-    savePantry(
-      { name: trimmed, qty: qty.trim(), cat, low },
-      editId,
-    );
-    onClose();
+    if (!trimmed || saving) return;
+    setSaving(true);
+    try {
+      await savePantry(
+        { name: trimmed, qty: qty.trim(), cat, low },
+        editId,
+      );
+      onClose();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "저장에 실패했어요.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -104,8 +112,13 @@ export function PantryFormModal({ open, editId, onClose }: PantryFormModalProps)
           <button type="button" className={styles.bcnl} onClick={onClose}>
             취소
           </button>
-          <button type="button" className={styles.bsave} onClick={handleSave}>
-            저장하기
+          <button
+            type="button"
+            className={styles.bsave}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "저장 중…" : "저장하기"}
           </button>
         </div>
       </div>

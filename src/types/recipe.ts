@@ -4,9 +4,12 @@ export type RecipeStep = {
 };
 
 export type Recipe = {
-  id: number;
+  id: string;
+  /** DB categories.id (mock 모드에서는 없을 수 있음) */
+  categoryId?: string;
   emoji: string;
   name: string;
+  /** 표시용 카테고리명 (categories.name) */
   cat: string;
   serving: string;
   preheat: number | null;

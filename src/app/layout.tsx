@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Lora, Noto_Sans_KR } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
+import { SupabaseProvider } from "@/context/SupabaseContext";
 import "./globals.css";
 
 const noto = Noto_Sans_KR({
@@ -17,8 +18,8 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "융융의 베이킹노트",
-  description: "베이킹 레시피와 재료 창고",
+  title: "나의 레시피 노트",
+  description: "베이킹·음식·음료 레시피와 재료 창고",
 };
 
 export const viewport = {
@@ -39,7 +40,9 @@ export default function RootLayout({
           fontFamily: "var(--font-noto), 'Noto Sans KR', sans-serif",
         }}
       >
-        <AppProvider>{children}</AppProvider>
+        <SupabaseProvider>
+          <AppProvider>{children}</AppProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );

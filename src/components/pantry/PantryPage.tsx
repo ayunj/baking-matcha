@@ -8,8 +8,8 @@ import styles from "@/styles/app.module.css";
 
 type PantryPageProps = {
   onAddItem: () => void;
-  onEditItem: (id: number) => void;
-  onDeleteItem: (id: number) => void;
+  onEditItem: (id: string) => void;
+  onDeleteItem: (id: string) => void;
 };
 
 export function PantryPage({ onAddItem, onEditItem, onDeleteItem }: PantryPageProps) {
@@ -31,26 +31,20 @@ export function PantryPage({ onAddItem, onEditItem, onDeleteItem }: PantryPagePr
     );
   }, [pantry, search, catF]);
 
-  const lowCount = pantry.filter((i) => i.low).length;
-
   return (
     <>
-      <div className={styles.ptitle}>재료 창고</div>
-      <div className={styles.psub}>
-        보유 {pantry.length}종 · 부족 {lowCount}종
-      </div>
-
       <div className={styles.tbar}>
         <input
           type="text"
           placeholder="재료 검색..."
+          style={{ flex: 1, minWidth: 140 }}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select value={catF} onChange={(e) => setCatF(e.target.value)}>
           {cats.map((c) => (
             <option key={c} value={c}>
-              {c === "전체" ? "전체 카테고리" : c}
+              {c}
             </option>
           ))}
         </select>

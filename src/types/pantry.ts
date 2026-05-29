@@ -1,5 +1,5 @@
 export type PantryItem = {
-  id: number;
+  id: string;
   name: string;
   qty: string;
   cat: string;

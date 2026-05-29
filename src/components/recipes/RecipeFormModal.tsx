@@ -4,31 +4,29 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons/Icon";
 import { IconButton } from "@/components/ui/IconButton";
 import { Modal } from "@/components/ui/Modal";
-import { EMOJIS } from "@/data/mock-data";
 import { useApp } from "@/context/AppContext";
-import {
-  PRESET_RECIPE_CATS,
-  RECIPE_CATEGORIES,
-  type Recipe,
-  type RecipeStep,
-} from "@/types/recipe";
+import { SECTION_EMOJIS } from "@/types/section";
+import type { Recipe, RecipeStep } from "@/types/recipe";
 import styles from "@/styles/app.module.css";
 
 type RecipeFormModalProps = {
   open: boolean;
-  editId: number | null;
+  editId: string | null;
   onClose: () => void;
 };
 
 type StepRow = { text: string; memo: string };
 
 export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps) {
-  const { recipes, saveRecipe } = useApp();
+  const { recipes, section, sectionConfig, saveRecipe } = useApp();
   const editing = editId != null ? recipes.find((r) => r.id === editId) : null;
+  const emojis = SECTION_EMOJIS[section];
+  const categories = sectionConfig.cats;
+  const showOven = sectionConfig.showOven;
 
-  const [emoji, setEmoji] = useState("🍰");
+  const [emoji, setEmoji] = useState(emojis[0]);
   const [name, setName] = useState("");
-  const [cat, setCat] = useState<string>(RECIPE_CATEGORIES[0]);
+  const [cat, setCat] = useState<string>(categories[0]);
   const [catCustom, setCatCustom] = useState("");
   const [serving, setServing] = useState("");
   const [preheat, setPreheat] = useState("");
@@ -37,6 +35,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
   const [note, setNote] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([""]);
   const [steps, setSteps] = useState<StepRow[]>([{ text: "", memo: "" }]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -48,9 +47,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
       setBakeTemp(editing.bakeTemp?.toString() ?? "");
       setBakeTime(editing.bakeTime?.toString() ?? "");
       setNote(editing.note || "");
-      const isCustom = !PRESET_RECIPE_CATS.includes(
-        editing.cat as (typeof PRESET_RECIPE_CATS)[number],
-      );
+      const isCustom = !categories.includes(editing.cat);
       if (isCustom) {
         setCat("기타");
         setCatCustom(editing.cat);
@@ -67,9 +64,9 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
           : [{ text: "", memo: "" }],
       );
     } else {
-      setEmoji("🍰");
+      setEmoji(emojis[0]);
       setName("");
-      setCat(RECIPE_CATEGORIES[0]);
+      setCat(categories[0]);
       setCatCustom("");
       setServing("");
       setPreheat("");
@@ -79,14 +76,14 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
       setIngredients([""]);
       setSteps([{ text: "", memo: "" }]);
     }
-  }, [open, editing]);
+  }, [open, editing, emojis, categories]);
 
   const resolvedCat =
     cat === "기타" ? catCustom.trim() || "기타" : cat;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed || saving) return;
 
     const ings = ingredients.map((i) => i.trim()).filter(Boolean);
     const stepData: RecipeStep[] = steps
@@ -98,21 +95,28 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
       name: trimmed,
       cat: resolvedCat,
       serving,
-      preheat: parseInt(preheat, 10) || null,
-      bakeTemp: parseInt(bakeTemp, 10) || null,
-      bakeTime: parseInt(bakeTime, 10) || null,
+      preheat: showOven ? parseInt(preheat, 10) || null : null,
+      bakeTemp: showOven ? parseInt(bakeTemp, 10) || null : null,
+      bakeTime: showOven ? parseInt(bakeTime, 10) || null : null,
       ingredients: ings,
       steps: stepData,
       note: note.trim(),
     };
 
-    saveRecipe(payload, editId);
-    onClose();
+    setSaving(true);
+    try {
+      await saveRecipe(payload, editId);
+      onClose();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "저장에 실패했어요.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Modal open={open} onClose={onClose}>
-      <div className={styles.modal}>
+      <div className={`${styles.modal} ${styles.modalWide}`}>
         <div className={styles.mhd}>
           <h2>{editId != null ? "레시피 수정" : "새 레시피"}</h2>
         </div>
@@ -120,7 +124,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
           <div className={styles.fr}>
             <label>이모지</label>
             <div className={styles.emrow}>
-              {EMOJIS.map((e) => (
+              {emojis.map((e) => (
                 <button
                   key={e}
                   type="button"
@@ -138,7 +142,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
             <input
               className={styles.finput}
               type="text"
-              placeholder="예: 촉촉한 초코 브라우니"
+              placeholder="레시피 이름"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -152,7 +156,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
                 value={cat}
                 onChange={(e) => setCat(e.target.value)}
               >
-                {RECIPE_CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -165,7 +169,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
                 <input
                   className={styles.finput}
                   type="text"
-                  placeholder="예: 마카롱"
+                  placeholder="카테고리명"
                   value={catCustom}
                   onChange={(e) => setCatCustom(e.target.value)}
                 />
@@ -176,7 +180,7 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
                 <input
                   className={styles.finput}
                   type="text"
-                  placeholder="예: 12개 / 8인분"
+                  placeholder="예: 2인분"
                   value={serving}
                   onChange={(e) => setServing(e.target.value)}
                 />
@@ -190,61 +194,61 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
               <input
                 className={styles.finput}
                 type="text"
-                placeholder="예: 12개 / 8인분"
+                placeholder="예: 2인분"
                 value={serving}
                 onChange={(e) => setServing(e.target.value)}
               />
             </div>
           ) : null}
 
-          <div className={styles.fr}>
-            <label>오븐 설정</label>
-            <div className={styles.ovcols}>
-              <div>
-                <span className={styles.flbl} style={{ marginBottom: 4 }}>
-                  예열 (°C)
-                </span>
-                <input
-                  className={styles.finput}
-                  type="number"
-                  placeholder="175"
-                  value={preheat}
-                  onChange={(e) => setPreheat(e.target.value)}
-                />
-              </div>
-              <div>
-                <span className={styles.flbl} style={{ marginBottom: 4 }}>
-                  굽는 온도 (°C)
-                </span>
-                <input
-                  className={styles.finput}
-                  type="number"
-                  placeholder="180"
-                  value={bakeTemp}
-                  onChange={(e) => setBakeTemp(e.target.value)}
-                />
-              </div>
-              <div>
-                <span className={styles.flbl} style={{ marginBottom: 4 }}>
-                  굽는 시간 (분)
-                </span>
-                <input
-                  className={styles.finput}
-                  type="number"
-                  placeholder="25"
-                  value={bakeTime}
-                  onChange={(e) => setBakeTime(e.target.value)}
-                />
+          {showOven ? (
+            <div className={styles.fr}>
+              <label>오븐 설정</label>
+              <div className={styles.ovcols}>
+                <div>
+                  <span className={styles.flbl} style={{ marginBottom: 3 }}>
+                    예열 (°C)
+                  </span>
+                  <input
+                    className={styles.finput}
+                    type="number"
+                    placeholder="175"
+                    value={preheat}
+                    onChange={(e) => setPreheat(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <span className={styles.flbl} style={{ marginBottom: 3 }}>
+                    굽는 온도
+                  </span>
+                  <input
+                    className={styles.finput}
+                    type="number"
+                    placeholder="180"
+                    value={bakeTemp}
+                    onChange={(e) => setBakeTemp(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <span className={styles.flbl} style={{ marginBottom: 3 }}>
+                    굽는 시간(분)
+                  </span>
+                  <input
+                    className={styles.finput}
+                    type="number"
+                    placeholder="25"
+                    value={bakeTime}
+                    onChange={(e) => setBakeTime(e.target.value)}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
           <div className={styles.fr}>
-            <div className={styles.flblrow}>
-              <span className={styles.flbl} style={{ margin: 0 }}>
-                재료
-              </span>
-            </div>
+            <span className={styles.flbl} style={{ marginBottom: 6 }}>
+              재료
+            </span>
             <div className={styles.dynlist}>
               {ingredients.map((val, idx) => (
                 <div key={idx} className={styles.dynrow}>
@@ -275,17 +279,15 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
               className={styles.addpill}
               onClick={() => setIngredients([...ingredients, ""])}
             >
-              <Icon id="ic-plus" size={13} />
+              <Icon id="ic-plus" size={11} />
               재료 추가
             </button>
           </div>
 
-          <div className={styles.fr} style={{ marginTop: 4 }}>
-            <div className={styles.flblrow}>
-              <span className={styles.flbl} style={{ margin: 0 }}>
-                만드는 방법
-              </span>
-            </div>
+          <div className={styles.fr}>
+            <span className={styles.flbl} style={{ marginBottom: 6 }}>
+              만드는 방법
+            </span>
             <div className={styles.dynlist}>
               {steps.map((step, idx) => (
                 <div key={idx} className={styles.dynrow}>
@@ -327,17 +329,17 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
               className={styles.addpill}
               onClick={() => setSteps([...steps, { text: "", memo: "" }])}
             >
-              <Icon id="ic-plus" size={13} />
+              <Icon id="ic-plus" size={11} />
               단계 추가
             </button>
           </div>
 
           <div className={styles.fr}>
-            <label>전체 메모 / 팁</label>
+            <label>메모 / 팁</label>
             <input
               className={styles.finput}
               type="text"
-              placeholder="보관 방법, 변형 팁 등"
+              placeholder="보관 방법, 팁 등"
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
@@ -347,8 +349,13 @@ export function RecipeFormModal({ open, editId, onClose }: RecipeFormModalProps)
           <button type="button" className={styles.bcnl} onClick={onClose}>
             취소
           </button>
-          <button type="button" className={styles.bsave} onClick={handleSave}>
-            저장하기
+          <button
+            type="button"
+            className={styles.bsave}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? "저장 중…" : "저장하기"}
           </button>
         </div>
       </div>

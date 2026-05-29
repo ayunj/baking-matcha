@@ -5,21 +5,24 @@ import { useApp } from "@/context/AppContext";
 import styles from "@/styles/app.module.css";
 
 type DashboardPageProps = {
-  onOpenRecipe: (id: number) => void;
+  onOpenRecipe: (id: string) => void;
   onAddRecipe: () => void;
 };
 
 export function DashboardPage({ onOpenRecipe, onAddRecipe }: DashboardPageProps) {
-  const { recipes, pantry } = useApp();
+  const { user, recipes, pantry, sectionConfig } = useApp();
   const low = pantry.filter((i) => i.low).length;
   const recent = [...recipes]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(0, 4);
+    .slice(0, 6);
 
   return (
     <>
-      <div className={styles.ptitle}>융융의 베이킹노트</div>
-      <div className={styles.psub}>오늘도 맛있게 구워봐요 🍵</div>
+      <div className={styles.pgTitle}>
+        {user ? `${user.name}의 ` : ""}
+        {sectionConfig.title}
+      </div>
+      <div className={styles.pgSub}>{sectionConfig.desc}</div>
 
       <div className={styles.sgrid}>
         <div className={styles.sc}>
@@ -39,7 +42,7 @@ export function DashboardPage({ onOpenRecipe, onAddRecipe }: DashboardPageProps)
       <div className={styles.sechd}>
         <span className={styles.seclabel}>최근 레시피</span>
         <button type="button" className={styles.fab} onClick={onAddRecipe}>
-          <Icon id="ic-plus" size={14} />
+          <Icon id="ic-plus" size={12} />
           레시피 추가
         </button>
       </div>
@@ -56,7 +59,7 @@ export function DashboardPage({ onOpenRecipe, onAddRecipe }: DashboardPageProps)
               onClick={() => onOpenRecipe(r.id)}
             >
               <div className={styles.remoji}>{r.emoji}</div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div className={styles.rname}>{r.name}</div>
                 <div className={styles.rmeta}>
                   {r.cat}

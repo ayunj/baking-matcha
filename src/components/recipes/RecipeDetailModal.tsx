@@ -13,13 +13,15 @@ import styles from "@/styles/app.module.css";
 
 type RecipeDetailModalProps = {
   recipe: Recipe | null;
+  showOven: boolean;
   open: boolean;
   onClose: () => void;
-  onEdit: (id: number) => void;
+  onEdit: (id: string) => void;
 };
 
 export function RecipeDetailModal({
   recipe,
+  showOven,
   open,
   onClose,
   onEdit,
@@ -35,7 +37,8 @@ export function RecipeDetailModal({
   const serving =
     mult > 1 ? scaleText(recipe.serving, mult) : recipe.serving;
 
-  const hasOven = recipe.preheat || recipe.bakeTemp || recipe.bakeTime;
+  const hasOven =
+    showOven && (recipe.preheat || recipe.bakeTemp || recipe.bakeTime);
 
   const changeMult = (delta: number) => {
     setMult((m) => Math.max(1, m + delta));

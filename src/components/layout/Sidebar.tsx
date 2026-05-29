@@ -1,5 +1,6 @@
 "use client";
 
+import { DbConnectionStatus } from "@/components/layout/DbConnectionStatus";
 import { Icon } from "@/components/icons/Icon";
 import { useApp, type TabId } from "@/context/AppContext";
 import styles from "@/styles/app.module.css";
@@ -15,17 +16,20 @@ export function Sidebar() {
 
   return (
     <nav className={styles.sidebar}>
-      {TABS.map((t) => (
-        <button
-          key={t.id}
-          type="button"
-          className={tab === t.id ? styles.nbtnOn : styles.nbtn}
-          onClick={() => setTab(t.id)}
-        >
-          <Icon id={t.icon} size={15} />
-          <span className={styles.nbtnLabel}>{t.label}</span>
-        </button>
-      ))}
+      <div className={styles.sidebarNav}>
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className={tab === t.id ? styles.nbtnOn : styles.nbtn}
+            onClick={() => setTab(t.id)}
+          >
+            <Icon id={t.icon} size={15} />
+            <span className={styles.nbtnLabel}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+      <DbConnectionStatus />
     </nav>
   );
 }
